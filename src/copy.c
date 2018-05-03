@@ -1629,11 +1629,9 @@ same_file_ok (char const *src_name, struct stat const *src_sb,
 
   /* It's ok to remove a destination symlink.  But that works only
      when creating symbolic links, or when the source and destination
-     are on the same file system and when creating hard links or when
-     unlinking before opening the destination.  */
+     are on the same file system and creating hard links.  */
   if (x->symbolic_link
-      || ((x->hard_link || x->unlink_dest_before_opening)
-          && S_ISLNK (dst_sb_link->st_mode)))
+      || (x->hard_link && S_ISLNK (dst_sb_link->st_mode)))
     return dst_sb_link->st_dev == src_sb_link->st_dev;
 
   if (x->dereference == DEREF_NEVER)
