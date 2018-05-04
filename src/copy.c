@@ -1627,11 +1627,16 @@ same_file_ok (char const *src_name, struct stat const *src_sb,
         }
     }
 
-  /* It's ok to remove a destination symlink.  But that works only
-     when creating symbolic links, or when the source and destination
-     are on the same file system and creating hard links.  */
-  if (x->symbolic_link
-      || (x->hard_link && S_ISLNK (dst_sb_link->st_mode)))
+  /* It's ok to remove a destination symlink - does not affect the source. */
+  if (x->symbolic_link)
+    return true;
+
+  /* When creating hard links it OK when the source and destination are on the
+     same file system.  TODO: The S_ISLNK() check is probably redundant, as we
+     should not be here if the source and the destination are the same file and
+     the destination is not a symbolic link.  The case when the source and the
+     destination are the same due to being hard links is checked above.  */
+  if (x->hard_link && S_ISLNK (dst_sb_link->st_mode))
     return dst_sb_link->st_dev == src_sb_link->st_dev;
 
   if (x->dereference == DEREF_NEVER)
